@@ -5,7 +5,7 @@ from typing import Optional
 
 from fastapi import FastAPI,status,Response
 
-router = APIRouter(prefix ='/blog',tags=['blog'])
+router = APIRouter(prefix ='/blog')
 
 # class ModelName(str, Enum):
 #     alexnet = "alexnet"

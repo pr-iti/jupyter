@@ -1,12 +1,14 @@
 from enum import Enum
 
 from fastapi import FastAPI,status,Response
-from routers import blog_routes
+from routers import blog_routes,blog_post
+
 #-------------------- predefined parameters ---------------//
 
 
 app = FastAPI()
 app.include_router(blog_routes.router)
+app.include_router(blog_post.router)
 
 @app.get("/hello")
 def get_welcome():
