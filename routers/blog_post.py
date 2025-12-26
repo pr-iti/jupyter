@@ -11,12 +11,12 @@ b = {"z": 3, **a}
 
 
 from urllib import response
-from fastapi import APIRouter, Query ,Body
+from fastapi import APIRouter, Query ,Body,Path
 from pydantic import BaseModel
 
 
 from enum import Enum
-from typing import Optional,List
+from typing import Optional,List,Dict,Tuple,Set
 
 from fastapi import FastAPI,status,Response
 
@@ -24,10 +24,18 @@ router = APIRouter(
     prefix ='/blog',
     tags=['blog -post'])
 
+
+class Image(BaseModel):
+    url:str
+    alias:str
+    
 class BlogModel(BaseModel):
     title:str
     content:str
     published:Optional[bool]
+    tag:List[str] = []
+    metadata:Dict[str,str] = {'key1' :'val1'}
+    image:Optional[Image] = None
     
 
 class Item(BaseModel):
@@ -54,30 +62,39 @@ def create_blog(blog: BlogModel,id:int,version:int = 1):
         
         }
 
-@router.post('/new/{id}/comment')
+# ...existing code...
+
+@router.post('/new/{id}/comment/{comment_id}')
 def create_comment(
     id: int,
+    comment_id: int,
     blog: BlogModel,
-    comment_id: int = Query(None,
-                   title='Id of the  comment',
-                   description='Description for comment_id',
-                   alias='comment_Id',
-                   deprecated=True),
+    comment_title: str = Path(
+        ...,
+        gt=5,  # gt,ge,lt
+        title='Title of the comment',
+        description='Description for comment_title',
+        alias='comment_Title',
+        deprecated=True
+    ),
     content: str = Body(
         ...,
         min_length=20,
-        regex="^[a-z\\s]+$" # allowed 
+        regex="^[a-z\\s]+$"  # allowed
     ),
-    v: Optional[List[str]] = Query(None)
+    v: Optional[List[int]] = Query([1, 2, 3, 4, 5])
 ):
     return {
         "blog": blog,
         "id": id,
-        "comment_id": comment_id,
+        "comment_Title": comment_title,
         "content": content,
-        "version": v
+        "version": v,
+        "comment_id": comment_id
     }
 
+
+# ...existing code...
 
 
 
