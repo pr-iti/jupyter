@@ -10,6 +10,7 @@ import os
 load_dotenv()
 
 
+# my_var = os.getenv("DB_USER")
 router = APIRouter(
     tags=['authentication']
 )

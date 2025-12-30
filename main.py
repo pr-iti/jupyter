@@ -1,6 +1,5 @@
 from enum import Enum
-
-from fastapi import FastAPI,status,Response, Request
+from fastapi import FastAPI,status,Response, Request, BackgroundTasks
 from routers import blog_get
 from routers import blog_post
 from routers import user,article
@@ -16,10 +15,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 #-------------------- predefined parameters ---------------//
 
-
+from datetime import datetime
 
 app = FastAPI()
 
+#----------------- background task implementation -----------------------//
+def write_log(message: str):
+    with open("log.txt", "a") as log_file:
+        log_file.write(f"{datetime.now()} - {message}\n")
+#----------------------------------------------------------------
+@app.post("/notify")
+async def notify_user(email: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(write_log, f"Notification sent to {email}")
+    return {"message": f"Notification will be sent to {email}"}
+
+#------------ static - files -----------//
 # Serve static files from the 'files' directory at '/files'
 app.mount("/files", StaticFiles(directory="files"), name="files")
 
@@ -61,6 +71,18 @@ def custom_handler(request : Request, exc: storyException
 # -----------------  creating table in db -------------//
 
 models.Base.metadata.create_all(engine)
+#---- middleware to find time taken to complete one api hit --------------//
+@app.middleware("http")
+async def add_middleware(request: Request, call_next):
+    start_time = datetime.now()
+    response = await call_next(request)
+    duration= datetime.now() - start_time
+    response.headers['duration'] = str(duration)    
+    return response
+
+
+
+
 
 #---- CORS - SETUP ------//
 origins = [

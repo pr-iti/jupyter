@@ -1,7 +1,13 @@
 from fastapi  import FastAPI
 from pydantic import BaseModel,field_validator 
 from typing import List
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
+
+my_var = os.getenv("DB_USER")
+# print(f"this is an env variable:- {my_var}")
 app = FastAPI()
 
 #------- pydantic validation ------//
